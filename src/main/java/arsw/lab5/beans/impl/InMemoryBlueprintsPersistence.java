@@ -53,6 +53,11 @@ public class InMemoryBlueprintsPersistence implements BlueprintPersistence {
     public void addBlueprint(Blueprint blueprint) throws BlueprintException {
         String autor = blueprint.getAuthor();
         List<Blueprint> autorsBlueprints;
+        if (blueprintsMap.containsKey(new Tuple<>(blueprint.getAuthor(), blueprint.getName()))) {
+            throw new BlueprintException("The given blueprint already exists: " + blueprint);
+        } else {
+            blueprintsMap.put(new Tuple<>(blueprint.getAuthor(), blueprint.getName()), blueprint);
+        }
         blueprints.add(blueprint);
         if (blueprintsByAuthor.containsKey(autor)) {
             autorsBlueprints = blueprintsByAuthor.get(autor);
@@ -62,16 +67,33 @@ public class InMemoryBlueprintsPersistence implements BlueprintPersistence {
             autorsBlueprints.add(blueprint);
             blueprintsByAuthor.put(autor, autorsBlueprints);
         }
-        if (blueprintsMap.containsKey(new Tuple<>(blueprint.getAuthor(), blueprint.getName()))) {
-            throw new BlueprintException("The given blueprint already exists: " + blueprint);
-        } else {
-            blueprintsMap.put(new Tuple<>(blueprint.getAuthor(), blueprint.getName()), blueprint);
-        }
+
     }
 
     @Override
     public Blueprint getBlueprint(String author, String bprintname) throws BlueprintException {
         return blueprintsMap.get(new Tuple<>(author, bprintname));
+    }
+
+    @Override
+    public void updateBlueprint(String author, String bpname, Blueprint blueprint) throws BlueprintException {
+        if (!blueprintsMap.containsKey(new Tuple<>(blueprint.getAuthor(), blueprint.getName()))) {
+            throw new BlueprintException("The given blueprint don't exists: " + blueprint);
+        }
+        blueprintsMap.put(new Tuple<>(blueprint.getAuthor(), blueprint.getName()), blueprint);
+        for (int i = 0; i < blueprints.size(); i++) {
+            if(blueprints.get(i).getAuthor().equals(blueprint.getAuthor()) && blueprints.get(i).getName().equals(blueprint.getName())){
+                blueprints.set(i, blueprint);
+            }
+        }
+        List<Blueprint> autorsBlueprints = blueprintsByAuthor.get(blueprint.getAuthor());
+        for (int i = 0; i < autorsBlueprints.size(); i++) {
+            if(autorsBlueprints.get(i).getAuthor().equals(blueprint.getAuthor()) && autorsBlueprints.get(i).getName().equals(blueprint.getName())){
+                autorsBlueprints.set(i, blueprint);
+            }
+        }
+        
+        
     }
 
 }

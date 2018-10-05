@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,10 +54,10 @@ public class APIController {
         }
     }
 
-    @GetMapping("/{author}/{name}")
-    public ResponseEntity<?> getBlueprintHandler(@PathVariable("author") String author, @PathVariable("name") String name) {
+    @GetMapping("/{author}/{bpname}")
+    public ResponseEntity<?> getBlueprintHandler(@PathVariable("author") String author, @PathVariable("bpname") String bpname) {
         try {
-            return new ResponseEntity<>(bps.getBlueprint(author, name), HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(bps.getBlueprint(author, bpname), HttpStatus.ACCEPTED);
         } catch (BlueprintException ex) {
             Logger.getLogger(BlueprintException.class.getName()).log(Level.SEVERE, null, ex);
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
@@ -72,6 +73,17 @@ public class APIController {
             Logger.getLogger(BlueprintException.class.getName()).log(Level.SEVERE, null, ex);
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
         }
-
     }
+    
+    @PutMapping("/{author}/{bpname}")
+    public ResponseEntity<?> putBlueprintHandler(@PathVariable("author") String author, @PathVariable("bpname") String bpname, @RequestBody Blueprint blueprint) {
+        try {
+            bps.updateBlueprint(author, bpname, blueprint);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (BlueprintException ex) {
+            Logger.getLogger(BlueprintException.class.getName()).log(Level.SEVERE, null, ex);
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
+        }
+    }
+    
 }

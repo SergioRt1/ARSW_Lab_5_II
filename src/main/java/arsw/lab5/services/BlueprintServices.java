@@ -22,4 +22,6 @@ public interface BlueprintServices {
 
     public void addNewBlueprintToAuthor(Blueprint blueprint) throws BlueprintException;
 
+    public void updateBlueprint(String author, String bpname, Blueprint blueprint) throws BlueprintException;
+
 }

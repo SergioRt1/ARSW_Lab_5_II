@@ -36,13 +36,18 @@ public class BlueprintServicesStub implements BlueprintServices{
     }
 
     @Override
+    public Blueprint getBlueprint(String author, String name) throws BlueprintException {
+        return filter.filter(bp.getBlueprint(author,name));
+    }
+    
+    @Override
     public void addNewBlueprintToAuthor(Blueprint blueprint) throws BlueprintException{
         bp.addBlueprint(blueprint);
     }
 
     @Override
-    public Blueprint getBlueprint(String author, String name) throws BlueprintException {
-        return bp.getBlueprint(author,name);
+    public void updateBlueprint(String author, String bpname, Blueprint blueprint) throws BlueprintException {
+        bp.updateBlueprint(author, bpname, blueprint);
     }
     
 }

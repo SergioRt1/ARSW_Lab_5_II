@@ -23,4 +23,6 @@ public interface BlueprintPersistence {
 
     public Blueprint getBlueprint(String author, String bprintname) throws BlueprintException;
 
+    public void updateBlueprint(String author, String bpname, Blueprint blueprint) throws BlueprintException;
+
 }
