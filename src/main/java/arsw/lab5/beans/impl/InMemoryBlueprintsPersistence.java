@@ -7,12 +7,14 @@ package arsw.lab5.beans.impl;
 
 import arsw.lab5.beans.BlueprintPersistence;
 import arsw.lab5.model.Blueprint;
+import arsw.lab5.model.Point;
 import arsw.lab5.model.Tuple;
 import arsw.lab5.services.BlueprintException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import org.springframework.stereotype.Service;
 
 /**
@@ -20,15 +22,41 @@ import org.springframework.stereotype.Service;
  * @author sergio
  */
 @Service
-public class InMemoryBlueprintsPersistence implements BlueprintPersistence {
+public final class InMemoryBlueprintsPersistence implements BlueprintPersistence {
 
-    private List<Blueprint> blueprints = new ArrayList<>();
-    private Map<String, List<Blueprint>> blueprintsByAuthor = new HashMap<>();
-    private final Map<Tuple<String, String>, Blueprint> blueprintsMap = new HashMap<>();
+    private final List<Blueprint> blueprints = new CopyOnWriteArrayList<>();
+    private final Map<String, List<Blueprint>> blueprintsByAuthor = new ConcurrentHashMap<>();
+    private final Map<Tuple<String, String>, Blueprint> blueprintsMap = new ConcurrentHashMap<>();
 
-    public InMemoryBlueprintsPersistence() {
-        //load stub data
-
+    public InMemoryBlueprintsPersistence() throws BlueprintException {
+        List<Point> points1 = new ArrayList<>();
+        List<Point> points2 = new ArrayList<>();
+        List<Point> points3 = new ArrayList<>();
+        
+        points1.add(new Point(0, 0));
+        points1.add(new Point(0, 0));
+        points1.add(new Point(1, 0));
+        points1.add(new Point(0, 2));
+        
+        points2.add(new Point(99, 5));
+        points2.add(new Point(0, 2));
+        points2.add(new Point(1, 0));
+        
+        points3.add(new Point(0, 0));
+        points3.add(new Point(9, 1));
+        points3.add(new Point(9, 1));
+        points3.add(new Point(8, 10));
+        
+        addBlueprint(new Blueprint("Sergio", "plano Casa", points1));
+        addBlueprint(new Blueprint("Andres", "Plano 1", points2));
+        addBlueprint(new Blueprint("Valentina", "Plano pesca", points3));
+    }
+    
+    @Override
+    public void clearMemory(){
+        blueprints.clear();
+        blueprintsByAuthor.clear();
+        blueprintsMap.clear();
     }
 
     @Override
@@ -56,23 +84,29 @@ public class InMemoryBlueprintsPersistence implements BlueprintPersistence {
         if (blueprintsMap.containsKey(new Tuple<>(blueprint.getAuthor(), blueprint.getName()))) {
             throw new BlueprintException("The given blueprint already exists: " + blueprint);
         } else {
-            blueprintsMap.put(new Tuple<>(blueprint.getAuthor(), blueprint.getName()), blueprint);
+            blueprintsMap.putIfAbsent(new Tuple<>(blueprint.getAuthor(), blueprint.getName()), blueprint);
         }
         blueprints.add(blueprint);
         if (blueprintsByAuthor.containsKey(autor)) {
             autorsBlueprints = blueprintsByAuthor.get(autor);
             autorsBlueprints.add(blueprint);
         } else {
-            autorsBlueprints = new ArrayList<>();
+            autorsBlueprints = new CopyOnWriteArrayList<>();
             autorsBlueprints.add(blueprint);
-            blueprintsByAuthor.put(autor, autorsBlueprints);
+            blueprintsByAuthor.putIfAbsent(autor, autorsBlueprints);
         }
 
     }
 
     @Override
     public Blueprint getBlueprint(String author, String bprintname) throws BlueprintException {
-        return blueprintsMap.get(new Tuple<>(author, bprintname));
+        Tuple<String,String> key = new Tuple<>(author, bprintname);
+        if (blueprintsMap.containsKey(key)) {
+            return blueprintsMap.get(key);
+        } else {
+            throw new BlueprintException(String.format("The blueprint \"%s\" associated with the author \"%s\" requested not exists in the database.",bprintname,author));
+        }
+        
     }
 
     @Override

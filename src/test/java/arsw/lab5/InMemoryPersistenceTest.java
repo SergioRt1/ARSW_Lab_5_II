@@ -20,12 +20,14 @@ public class InMemoryPersistenceTest {
     @Test(expected = BlueprintException.class)
     public void mustThrowIfIsEmpty() throws BlueprintException {
         BlueprintPersistence persistence = new InMemoryBlueprintsPersistence();
+        persistence.clearMemory();
         persistence.blueprints();
     }
 
     @Test(expected = BlueprintException.class)
     public void mustThrowIfAuthorIsNot() throws BlueprintException {
         BlueprintPersistence persistence = new InMemoryBlueprintsPersistence();
+        persistence.clearMemory();
         Blueprint blueprint = new Blueprint("camilo","plano1", new ArrayList<>());
         persistence.addBlueprint(blueprint);
         persistence.AuthorBlueprints("juan");
@@ -34,6 +36,7 @@ public class InMemoryPersistenceTest {
     @Test
     public void queryByAuthor() throws BlueprintException {
         BlueprintPersistence persistence = new InMemoryBlueprintsPersistence();
+        persistence.clearMemory();
         Blueprint JuanBlueprint = new Blueprint("juan","plano2", new ArrayList<>());
         Blueprint camiloBlueprint = new Blueprint("camilo","plano1", new ArrayList<>());
         persistence.addBlueprint(JuanBlueprint);
@@ -46,6 +49,7 @@ public class InMemoryPersistenceTest {
     @Test
     public void addANewBlueprint() throws BlueprintException {
         BlueprintPersistence persistence = new InMemoryBlueprintsPersistence();
+        persistence.clearMemory();
         Blueprint JuanBlueprint = new Blueprint("juan","plano2", new ArrayList<>());
         persistence.addBlueprint(JuanBlueprint);
         List<Blueprint> blueprints = persistence.blueprints();
